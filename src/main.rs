@@ -24,7 +24,13 @@ fn csr_write_simple(val: u32, addr: u32) {
 
 #[no_mangle]
 extern "C" fn main() {
+    /* This write turns off blink/rainbow modes */
     csr_write_simple(0, 0x6810);
+
+    // RGB blue
+	csr_write_simple(255, 0x6808);
+    // RGB red
+	csr_write_simple(0, 0x6800);
 }
 
 #[no_mangle]
