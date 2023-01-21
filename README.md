@@ -2,7 +2,7 @@
 
 Emulate a RISCV processor on the OrangeCrab FPGA and program it in Rust.
 
-Adapted form ![OrangeCrab Examples](https://github.com/orangecrab-fpga/orangecrab-examples)
+Adapted from ![OrangeCrab Examples](https://github.com/orangecrab-fpga/orangecrab-examples)
 
 ## Getting Started
 
