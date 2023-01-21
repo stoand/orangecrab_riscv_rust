@@ -8,6 +8,9 @@ use core::ptr::{read_volatile, write_volatile};
 
 global_asm!(include_str!("../start.s"));
 
+
+// constants taken from ~/orangecrab-examples/riscv/blink/generated/csr.h
+
 const CSR_BASE: u32 = 0xe0000000;
 
 const LED_RED: u32 = 0x6800;
