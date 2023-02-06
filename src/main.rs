@@ -1,5 +1,6 @@
 #![no_std]
 #![no_main]
+#![feature(asm_const)]
 
 use core::arch::global_asm;
 use core::include_str;
@@ -7,6 +8,10 @@ use core::panic::PanicInfo;
 use core::ptr::{read_volatile, write_volatile};
 
 global_asm!(include_str!("../start.s"));
+
+mod interrupts;
+
+use interrupts::usb_interrupt;
 
 // constants taken from ~/orangecrab-examples/riscv/blink/generated/csr.h
 
@@ -62,9 +67,13 @@ fn set_rgb(rgb: RGB) {
 #[no_mangle]
 extern "C" fn main() {
     disable_rbg_special_effects();
-    set_rgb(RGB::Green);
+    set_rgb(RGB::Blue);
 
     loop {
+        if usb_interrupt() {
+            set_rgb(RGB::Red);
+        }
+
         if button_pressed() {
             restart_to_bootloader();
         }
@@ -72,4 +81,8 @@ extern "C" fn main() {
 }
 
 #[no_mangle]
-extern "C" fn isr() {}
+extern "C" fn isr() {
+    // if usb_interrupt() {
+    set_rgb(RGB::Red);
+    // }
+}
