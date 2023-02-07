@@ -11,7 +11,7 @@ global_asm!(include_str!("../start.s"));
 
 mod interrupts;
 
-use interrupts::{set_interrupt_mask, usb_interrupt};
+use interrupts::{set_interrupt_ie_enabled, set_interrupt_mask_zero, usb_interrupt};
 
 // constants taken from ~/orangecrab-examples/riscv/blink/generated/csr.h
 
@@ -64,11 +64,29 @@ fn set_rgb(rgb: RGB) {
     mem_write(0x6808, set_bit(rgb == RGB::Blue));
 }
 
+fn usb_init() {
+   mem_write(0x4800, 0);
+   mem_write(0x4804, 0);
+   mem_write(0x4840, 0);
+   mem_write(0x4820, 0);
+   mem_write(0x4838, 0);
+   mem_write(0x4850, 0);
+   
+   mem_write(0x4828, 1 << 5);
+   
+   mem_write(0x4810, 1 << 5);
+
+   mem_write(0x4840, 1 << 5);
+}
+
 #[no_mangle]
 extern "C" fn main() {
-    // disable_rbg_special_effects();
-    // set_rgb(RGB::Blue);
-    set_interrupt_mask(0);
+    disable_rbg_special_effects();
+    set_rgb(RGB::Blue);
+    // set_interrupt_mask_zero();
+    // set_interrupt_ie_enabled();
+
+    // usb_init();
 
     loop {
         if usb_interrupt() {
@@ -84,5 +102,5 @@ extern "C" fn main() {
 #[no_mangle]
 extern "C" fn isr() {
     disable_rbg_special_effects();
-    set_rgb(RGB::Blue);
+    set_rgb(RGB::Green);
 }
