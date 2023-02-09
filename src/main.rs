@@ -16,8 +16,6 @@ use usb::UsbConnection;
 
 use interrupts::{set_interrupt_ie_enabled, set_interrupt_mask, usb_interrupt};
 
-use crate::interrupts::interrupt_mask;
-
 // constants taken from ~/orangecrab-examples/riscv/blink/generated/csr.h
 
 const CSR_BASE: u32 = 0xe0000000;
@@ -69,16 +67,6 @@ fn set_rgb(rgb: RGB) {
     mem_write(0x6808, set_bit(rgb == RGB::Blue));
 }
 
-const USB_INTERRUPT: u32 = 3;
-
-fn set_usb_interrupt_mask(enabled: bool) {
-    if enabled {
-        set_interrupt_mask(interrupt_mask() | (1 << USB_INTERRUPT));
-    } else {
-        set_interrupt_mask(interrupt_mask() & !(1 << USB_INTERRUPT));
-    }
-}
-
 #[no_mangle]
 extern "C" fn main() {
     disable_rbg_special_effects();
@@ -109,5 +97,5 @@ extern "C" fn main() {
 #[no_mangle]
 extern "C" fn isr() {
     disable_rbg_special_effects();
-    set_rgb(RGB::Green);
+    set_rgb(RGB::Blue);
 }
