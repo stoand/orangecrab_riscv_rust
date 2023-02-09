@@ -1,19 +1,10 @@
 use core::arch::asm;
 
-pub fn set_interrupt_mask_zero() {
+pub fn set_interrupt_mask(mask: u32) {
     unsafe {
-        asm!("csrw {}, {}", const 0xbc0, const 0);
+        asm!("csrw {}, {}", const 0xbc0, in(reg) mask);
     }
 }
-
-
-// #ifndef csrs
-// #define csrs(reg, bit) ({ \
-// 	if (__builtin_constant_p(bit) && (unsigned long)(bit) < 32) \
-// 		asm volatile ("csrrs x0, " #reg ", %0" :: "i"(bit)); \
-// 	else \
-// 		asm volatile ("csrrs x0, " #reg ", %0" :: "r"(bit)); })
-// #endif
 
 pub fn set_interrupt_ie_enabled() {
    unsafe {
@@ -41,6 +32,7 @@ pub fn interrupt_pending() -> u32 {
 
 pub fn usb_interrupt() -> bool {
     const USB_INTERRUPT: u32 = 3;
-    interrupt_mask() | interrupt_pending() != 0
-    // interrupt_mask() | interrupt_pending() & (1 << USB_INTERRUPT) != 0
+    // interrupt_mask() | interrupt_pending() != 0
+    interrupt_pending() != 0
+    // interrupt_mask() & interrupt_pending() & (1 << USB_INTERRUPT) != 0
 }
