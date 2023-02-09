@@ -202,7 +202,12 @@ impl UsbConnection {
     fn process_rx(&mut self) {}
 
     pub fn usb_setup(&mut self, usb_setup_request: UsbSetupRequest) {
-        
+        let mut ep_dir: u8 = usb_setup_request.request_type >> 7;
+        let data: u8 = 0;
+        let mut data_len = 0;
+
+        use super::{set_rgb, RGB};
+        set_rgb(RGB::Green);
     }
 
     pub fn usb_poll(&mut self) {

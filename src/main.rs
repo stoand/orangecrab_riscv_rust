@@ -56,14 +56,14 @@ fn disable_rbg_special_effects() {
 }
 
 #[derive(Copy, Clone, Debug, PartialOrd, PartialEq)]
-enum RGB {
+pub enum RGB {
     Red,
     Green,
     Blue,
     Off,
 }
 
-fn set_rgb(rgb: RGB) {
+pub fn set_rgb(rgb: RGB) {
     let set_bit = |b: bool| if b { 0xff } else { 0 };
     mem_write(0x6800, set_bit(rgb == RGB::Red));
     mem_write(0x6804, set_bit(rgb == RGB::Green));
@@ -102,11 +102,6 @@ extern "C" fn isr() {
 
         unsafe {
             usb_connection.usb_isr();
-        }
-    }
-    loop {
-        if button_pressed() {
-            restart_to_bootloader();
         }
     }
 }
