@@ -2,6 +2,9 @@
 #![no_main]
 #![feature(asm_const)]
 
+// extern crate alloc;
+// mod custom_alloc;
+
 use core::arch::global_asm;
 use core::include_str;
 use core::panic::PanicInfo;
@@ -67,27 +70,20 @@ fn set_rgb(rgb: RGB) {
     mem_write(0x6808, set_bit(rgb == RGB::Blue));
 }
 
+static mut usb_connection: UsbConnection = UsbConnection::new();
+
 #[no_mangle]
 extern "C" fn main() {
     disable_rbg_special_effects();
-    // set_rgb(RGB::Blue);
     set_interrupt_mask(0);
     set_interrupt_ie_enabled();
 
-    // set_usb_pullup_out(false);
-    //
-    let mut usb_connection = UsbConnection::new();
-
-    usb_connection.usb_init();
-    usb_connection.usb_connect();
-
-    // usb_init();
+    unsafe {
+        usb_connection.usb_init();
+        usb_connection.usb_connect();
+    }
 
     loop {
-        if usb_interrupt() {
-            set_rgb(RGB::Green);
-        }
-
         if button_pressed() {
             restart_to_bootloader();
         }
@@ -97,5 +93,16 @@ extern "C" fn main() {
 #[no_mangle]
 extern "C" fn isr() {
     disable_rbg_special_effects();
-    set_rgb(RGB::Blue);
+    if usb_interrupt() {
+        set_rgb(RGB::Blue);
+        
+        unsafe {
+            usb_connection.usb_isr();
+        }
+    }
+    loop {
+        if button_pressed() {
+            restart_to_bootloader();
+        }
+    }
 }

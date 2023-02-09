@@ -7,9 +7,9 @@ pub fn set_interrupt_mask(mask: u32) {
 }
 
 pub fn set_interrupt_ie_enabled() {
-   unsafe {
-       asm!("csrrs x0, mstatus, {}", const 0x8);
-   }
+    unsafe {
+        asm!("csrrs x0, mstatus, {}", const 0x8);
+    }
 }
 
 pub fn interrupt_mask() -> u32 {
@@ -30,9 +30,8 @@ pub fn interrupt_pending() -> u32 {
     pending
 }
 
+pub const USB_INTERRUPT: u32 = 3;
+
 pub fn usb_interrupt() -> bool {
-    const USB_INTERRUPT: u32 = 3;
-    // interrupt_mask() | interrupt_pending() != 0
-    interrupt_pending() != 0
-    // interrupt_mask() & interrupt_pending() & (1 << USB_INTERRUPT) != 0
+    interrupt_mask() & interrupt_pending() & (1 << USB_INTERRUPT) != 0
 }
