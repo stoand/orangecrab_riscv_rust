@@ -57,6 +57,21 @@ SECTIONS
 		_ebss = .;
 		_end = .;
 	} > sram
+
+	.eh_frame :
+	{
+		. = ALIGN(4);
+		_feh_frame = .;
+		*(.dynseh_frame)
+		*(.seh_frame .seh_frame.* .gnu.linkonce.sb.*)
+		*(.scommon)
+		*(.dyneh_frame)
+		*(.eh_frame .eh_frame.* .gnu.linkonce.b.*)
+		*(COMMON)
+		. = ALIGN(4);
+		_eeh_frame = .;
+		_end = .;
+	} > sram
 }
 
 PROVIDE(_fstack = ORIGIN(sram) + LENGTH(sram) - 4);
