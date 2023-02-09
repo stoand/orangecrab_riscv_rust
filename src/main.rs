@@ -84,6 +84,10 @@ extern "C" fn main() {
     }
 
     loop {
+        unsafe {
+            usb_connection.usb_poll();
+        }
+
         if button_pressed() {
             restart_to_bootloader();
         }
@@ -95,7 +99,7 @@ extern "C" fn isr() {
     disable_rbg_special_effects();
     if usb_interrupt() {
         set_rgb(RGB::Blue);
-        
+
         unsafe {
             usb_connection.usb_isr();
         }

@@ -1,5 +1,6 @@
 use crate::interrupts::{interrupt_mask, set_interrupt_mask, USB_INTERRUPT};
 use crate::{mem_read, mem_write};
+use core::mem::transmute;
 
 fn set_usb_pullup_out(enabled: bool) {
     mem_write(0x4800, if enabled { 1 } else { 0 });
@@ -80,6 +81,14 @@ fn set_usb_interrupt_mask(enabled: bool) {
     } else {
         set_interrupt_mask(interrupt_mask() & !(1 << USB_INTERRUPT));
     }
+}
+
+struct UsbSetupRequest {
+    request_type: u8,
+    request: u8,
+    value: u16,
+    index: u16,
+    length: u16,
 }
 
 pub struct UsbConnection {
@@ -192,7 +201,27 @@ impl UsbConnection {
 
     fn process_rx(&mut self) {}
 
-     pub const fn new() -> Self {
+    pub fn usb_setup(&mut self, usb_setup_request: UsbSetupRequest) {
+        
+    }
+
+    pub fn usb_poll(&mut self) {
+        if self.setup_length != 0 {
+            self.setup_length = 0;
+            let p = self.setup_packet;
+            let get_u16 = |index| unsafe { transmute::<[u8; 2], u16>([p[index], p[index + 1]]) };
+            let usb_setup_request = UsbSetupRequest {
+                request_type: p[0],
+                request: p[1],
+                value: get_u16(2),
+                index: get_u16(4),
+                length: get_u16(6),
+            };
+            self.usb_setup(usb_setup_request);
+        }
+    }
+
+    pub const fn new() -> Self {
         UsbConnection {
             out_buffer_length: 0,
             setup_length: 0,
